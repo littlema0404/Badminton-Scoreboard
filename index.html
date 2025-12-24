@@ -279,11 +279,11 @@
         <div class="setup-toolbar">
             <div class="input-group">
                 <label>藍隊讓分</label>
-                <input type="number" id="initScoreA" value="0" placeholder="0">
+                <input type="number" id="initScoreA" value="0" placeholder="0" min="0">
             </div>
             <div class="input-group">
                 <label>紅隊讓分</label>
-                <input type="number" id="initScoreB" value="0" placeholder="0">
+                <input type="number" id="initScoreB" value="0" placeholder="0" min="0">
             </div>
         </div>
 
@@ -394,8 +394,11 @@
         const pB_Even = document.getElementById('input_B_Even').value || 'B1';
         const pB_Odd = document.getElementById('input_B_Odd').value || 'B2';
 
-        gameState.scoreA = parseInt(document.getElementById('initScoreA').value) || 0;
-        gameState.scoreB = parseInt(document.getElementById('initScoreB').value) || 0;
+        // 讓分：輸入正數會轉換為負數（例如輸入 2，開始後變成 -2）
+        const handicapA = parseInt(document.getElementById('initScoreA').value) || 0;
+        const handicapB = parseInt(document.getElementById('initScoreB').value) || 0;
+        gameState.scoreA = handicapA > 0 ? -handicapA : 0;
+        gameState.scoreB = handicapB > 0 ? -handicapB : 0;
         gameState.targetScore = parseInt(document.getElementById('targetScore').value) || 21;
         gameState.servingTeam = document.getElementById('firstServer').value;
 
