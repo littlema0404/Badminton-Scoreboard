@@ -465,6 +465,7 @@
         posA_Odd: '',
         posB_Even: '',
         posB_Odd: '',
+        hasWinner: false, // 追蹤是否已經有勝利者
     };
 
     let historyStack = [];
@@ -490,6 +491,7 @@
         gameState.posB_Even = pB_Even;
         gameState.posB_Odd = pB_Odd;
 
+        gameState.hasWinner = false; // 重置勝利狀態
         historyStack = []; // 清空紀錄
 
         document.getElementById('setupScreen').style.display = 'none';
@@ -557,8 +559,33 @@
         // 獲勝特效
         areaA.classList.remove('winner');
         areaB.classList.remove('winner');
-        if (gameState.scoreA >= gameState.targetScore) areaA.classList.add('winner');
-        else if (gameState.scoreB >= gameState.targetScore) areaB.classList.add('winner');
+        const isAWinner = gameState.scoreA >= gameState.targetScore;
+        const isBWinner = gameState.scoreB >= gameState.targetScore;
+        
+        // 如果分數低於目標分數，重置勝利狀態（用於復原功能）
+        if (!isAWinner && !isBWinner) {
+            gameState.hasWinner = false;
+        }
+        
+        if (isAWinner) {
+            areaA.classList.add('winner');
+            // 如果之前未勝利，現在勝利了，顯示 alert
+            if (!gameState.hasWinner) {
+                gameState.hasWinner = true;
+                setTimeout(() => {
+                    alert('🎉 藍隊 (Team A) 獲勝！');
+                }, 100);
+            }
+        } else if (isBWinner) {
+            areaB.classList.add('winner');
+            // 如果之前未勝利，現在勝利了，顯示 alert
+            if (!gameState.hasWinner) {
+                gameState.hasWinner = true;
+                setTimeout(() => {
+                    alert('🎉 紅隊 (Team B) 獲勝！');
+                }, 100);
+            }
+        }
 
         // 更新場上名字
         updateMarker('marker_A_Even', gameState.posA_Even);
