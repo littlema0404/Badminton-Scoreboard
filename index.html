@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>羽球雙打戰術計分板 v3.0</title>
+    <style>
+        :root {
+            --court-color: #2e7d32;
+            --line-color: #ffffff;
+            --bg-color: #0b0f14;
+            --card-bg: #111826;
+            --text-color: #e8eef7;
+            --team-a-color: #3b82f6;
+            --team-b-color: #ef4444;
+            --win-color: #f59e0b;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        /* 通用 Input 樣式 */
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            background: #1f2937;
+            border: 1px solid #4b5563;
+            color: white;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        /* --- 球場容器 (共用於設定與比賽) --- */
+        .court-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: var(--court-color);
+            border: 3px solid var(--line-color);
+            margin-bottom: 16px;
+            display: flex;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border-radius: 4px;
+        }
+
+        .net {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255,255,255,0.6);
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .net::after {
+            content: "";
+            height: 100%;
+            border-left: 2px dashed #333;
+        }
+
+        .court-half {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .court-half.left-court { border-right: 2px solid rgba(255,255,255,0.3); }
+
+        .service-box {
+            flex: 1;
+            border: 1px solid rgba(255,255,255,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 8px;
+        }
+
+        /* 標籤 (左單/右雙) */
+        .label-area {
+            position: absolute;
+            font-size: 10px;
+            color: rgba(255,255,255,0.6);
+            pointer-events: none;
+            background: rgba(0,0,0,0.2);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .top-left { top: 4px; left: 4px; }
+        .bottom-right { bottom: 4px; right: 4px; }
+
+        /* --- 設定頁面特有樣式 --- */
+        #setupScreen { display: block; width: 100%; }
+
+        .setup-header { text-align: center; margin-bottom: 10px; }
+        .setup-toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            background: var(--card-bg);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .setup-toolbar .input-group { flex: 1; }
+        .setup-toolbar label { font-size: 12px; color: #9ca3af; display: block; margin-bottom: 4px; }
+
+        /* 設定模式下的輸入框 */
+        .court-input {
+            background: rgba(0, 0, 0, 0.4) !important;
+            border: 1px solid rgba(255,255,255,0.5) !important;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .court-input::placeholder { color: rgba(255,255,255,0.5); font-weight: normal; font-size: 12px;}
+
+        button.start-btn {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            width: 100%;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            margin-top: 10px;
+        }
+
+        /* --- 比賽頁面 --- */
+        #gameScreen { display: none; width: 100%; }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 10px 10px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #374151;
+        }
+
+        .team-score { text-align: center; width: 42%; position: relative; }
+        .team-name { font-size: 1rem; margin-bottom: 4px; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .score-num { font-size: 3.5rem; font-weight: 800; line-height: 1; font-family: monospace; }
+        .color-a { color: var(--team-a-color); }
+        .color-b { color: var(--team-b-color); }
+
+        /* 獲勝特效 */
+        .winner .score-num { color: var(--win-color) !important; text-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+        .winner::after {
+            content: "WINNER";
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--win-color);
+            color: #000;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        /* 比賽中的球員標記 */
+        .player-marker {
+            background: #1f2937;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2;
+            min-width: 60px;
+            text-align: center;
+            border: 1px solid #4b5563;
+        }
+
+        .player-marker.serving {
+            background: #fbbf24;
+            color: #000;
+            border-color: #fff;
+            transform: scale(1.15);
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+            z-index: 5;
+        }
+
+        .shuttle-icon { font-size: 14px; margin-top: 2px; display: none; }
+        .serving .shuttle-icon { display: block; }
+
+        /* 控制按鈕 */
+        .controls { display: flex; gap: 10px; margin-bottom: 12px; }
+        .btn-score {
+            flex: 1;
+            padding: 20px 5px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+        }
+        .btn-score:active { transform: translateY(4px); box-shadow: none; }
+        .btn-a { background: var(--team-a-color); }
+        .btn-b { background: var(--team-b-color); }
+        .sub-text { font-size: 0.75rem; font-weight: normal; opacity: 0.9; margin-top: 4px; }
+
+        .btn-undo {
+            background: #374151;
+            color: #9ca3af;
+            border: 1px solid #4b5563;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="setupScreen">
+        <div class="setup-header">
+            <h1>🏸 比賽設定</h1>
+            <p style="font-size:12px; color:#9ca3af;">直接在球場位置輸入名字，所見即所得</p>
+        </div>
+
+        <div class="setup-toolbar">
+            <div class="input-group">
+                <label>目標分數</label>
+                <input type="number" id="targetScore" value="21">
+            </div>
+            <div class="input-group">
+                <label>誰先發球</label>
+                <select id="firstServer">
+                    <option value="A">藍隊 (Team A)</option>
+                    <option value="B">紅隊 (Team B)</option>
+                </select>
+            </div>
+        </div>
+        <div class="setup-toolbar">
+            <div class="input-group">
+                <label>藍隊讓分</label>
+                <input type="number" id="initScoreA" value="0" placeholder="0">
+            </div>
+            <div class="input-group">
+                <label>紅隊讓分</label>
+                <input type="number" id="initScoreB" value="0" placeholder="0">
+            </div>
+        </div>
+
+        <div class="court-container">
+            <div class="net"></div>
+
+            <div class="court-half left-court">
+                <div class="service-box">
+                    <span class="label-area top-left">左半場 (單數)</span>
+                    <input type="text" class="court-input" id="input_A_Odd" placeholder="球員 A2">
+                </div>
+                <div class="service-box">
+                    <span class="label-area bottom-right">右半場 (雙數)</span>
+                    <input type="text" class="court-input" id="input_A_Even" placeholder="球員 A1 (首發)">
+                </div>
+            </div>
+
+            <div class="court-half">
+                <div class="service-box">
+                    <span class="label-area top-left">右半場 (雙數)</span>
+                    <input type="text" class="court-input" id="input_B_Even" placeholder="球員 B1 (接發)">
+                </div>
+                <div class="service-box">
+                    <span class="label-area bottom-right">左半場 (單數)</span>
+                    <input type="text" class="court-input" id="input_B_Odd" placeholder="球員 B2">
+                </div>
+            </div>
+        </div>
+
+        <button class="start-btn" onclick="startGame()">開始比賽</button>
+    </div>
+
+    <div id="gameScreen">
+        <div class="scoreboard">
+            <div class="team-score" id="areaScoreA">
+                <div class="team-name color-a">Team A (藍)</div>
+                <div class="score-num color-a" id="dispScoreA">0</div>
+            </div>
+            <div style="font-size: 1.2rem; color: #4b5563; font-weight:bold;">VS</div>
+            <div class="team-score" id="areaScoreB">
+                <div class="team-name color-b">Team B (紅)</div>
+                <div class="score-num color-b" id="dispScoreB">0</div>
+            </div>
+        </div>
+
+        <div class="court-container">
+            <div class="net"></div>
+
+            <div class="court-half left-court">
+                <div class="service-box">
+                    <span class="label-area top-left">左 (單)</span>
+                    <div class="player-marker" id="marker_A_Odd"></div>
+                </div>
+                <div class="service-box">
+                    <span class="label-area bottom-right">右 (雙)</span>
+                    <div class="player-marker" id="marker_A_Even"></div>
+                </div>
+            </div>
+
+            <div class="court-half">
+                <div class="service-box">
+                    <span class="label-area top-left">右 (雙)</span>
+                    <div class="player-marker" id="marker_B_Even"></div>
+                </div>
+                <div class="service-box">
+                    <span class="label-area bottom-right">左 (單)</span>
+                    <div class="player-marker" id="marker_B_Odd"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-score btn-a" onclick="handleScore('A')">
+                A 得分
+                <span class="sub-text">換位 / 換發球</span>
+            </button>
+            <button class="btn-score btn-b" onclick="handleScore('B')">
+                B 得分
+                <span class="sub-text">換位 / 換發球</span>
+            </button>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+            <button class="btn-undo" onclick="undoScore()">↩ 復原上一步</button>
+            <button class="btn-undo" onclick="resetGame()">⚙ 結束/設定</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let gameState = {
+        scoreA: 0,
+        scoreB: 0,
+        targetScore: 21,
+        servingTeam: 'A',
+        posA_Even: '',
+        posA_Odd: '',
+        posB_Even: '',
+        posB_Odd: '',
+    };
+
+    let historyStack = [];
+
+    function startGame() {
+        // 從視覺化輸入框獲取名字
+        const pA_Odd = document.getElementById('input_A_Odd').value || 'A2';
+        const pA_Even = document.getElementById('input_A_Even').value || 'A1';
+        const pB_Even = document.getElementById('input_B_Even').value || 'B1';
+        const pB_Odd = document.getElementById('input_B_Odd').value || 'B2';
+
+        gameState.scoreA = parseInt(document.getElementById('initScoreA').value) || 0;
+        gameState.scoreB = parseInt(document.getElementById('initScoreB').value) || 0;
+        gameState.targetScore = parseInt(document.getElementById('targetScore').value) || 21;
+        gameState.servingTeam = document.getElementById('firstServer').value;
+
+        // 設定初始位置 (直接對應輸入框位置)
+        gameState.posA_Odd = pA_Odd;
+        gameState.posA_Even = pA_Even;
+        gameState.posB_Even = pB_Even;
+        gameState.posB_Odd = pB_Odd;
+
+        historyStack = []; // 清空紀錄
+
+        document.getElementById('setupScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+
+        render();
+    }
+
+    function resetGame() {
+        if(confirm('確定要結束比賽並回到設定頁面嗎？')) {
+            document.getElementById('setupScreen').style.display = 'block';
+            document.getElementById('gameScreen').style.display = 'none';
+        }
+    }
+
+    function saveState() {
+        // 儲存狀態，移除長度限制，讓你可以無限復原
+        historyStack.push(JSON.parse(JSON.stringify(gameState)));
+    }
+
+    function undoScore() {
+        if (historyStack.length === 0) {
+            alert("已經回到最開始的狀態囉！(若要修改名字請按設定)");
+            return;
+        }
+        gameState = historyStack.pop();
+        render();
+    }
+
+    function handleScore(winner) {
+        saveState(); // 動作前先存檔
+
+        if (winner === gameState.servingTeam) {
+            // 發球方得分：分數+1，同隊換位，繼續發球
+            if (winner === 'A') {
+                gameState.scoreA++;
+                [gameState.posA_Even, gameState.posA_Odd] = [gameState.posA_Odd, gameState.posA_Even];
+            } else {
+                gameState.scoreB++;
+                [gameState.posB_Even, gameState.posB_Odd] = [gameState.posB_Odd, gameState.posB_Even];
+            }
+        } else {
+            // 接發方得分：分數+1，不換位，換邊發球
+            if (winner === 'A') {
+                gameState.scoreA++;
+                gameState.servingTeam = 'A';
+            } else {
+                gameState.scoreB++;
+                gameState.servingTeam = 'B';
+            }
+        }
+        render();
+    }
+
+    function render() {
+        // 更新分數
+        const scoreAEl = document.getElementById('dispScoreA');
+        const scoreBEl = document.getElementById('dispScoreB');
+        const areaA = document.getElementById('areaScoreA');
+        const areaB = document.getElementById('areaScoreB');
+
+        scoreAEl.textContent = gameState.scoreA;
+        scoreBEl.textContent = gameState.scoreB;
+
+        // 獲勝特效
+        areaA.classList.remove('winner');
+        areaB.classList.remove('winner');
+        if (gameState.scoreA >= gameState.targetScore) areaA.classList.add('winner');
+        else if (gameState.scoreB >= gameState.targetScore) areaB.classList.add('winner');
+
+        // 更新場上名字
+        updateMarker('marker_A_Even', gameState.posA_Even);
+        updateMarker('marker_A_Odd', gameState.posA_Odd);
+        updateMarker('marker_B_Even', gameState.posB_Even);
+        updateMarker('marker_B_Odd', gameState.posB_Odd);
+
+        // 發球提示
+        document.querySelectorAll('.player-marker').forEach(el => el.classList.remove('serving'));
+
+        if (gameState.servingTeam === 'A') {
+            const isOdd = Math.abs(gameState.scoreA) % 2 === 1;
+            if (isOdd) document.getElementById('marker_A_Odd').classList.add('serving');
+            else document.getElementById('marker_A_Even').classList.add('serving');
+        } else {
+            const isOdd = Math.abs(gameState.scoreB) % 2 === 1;
+            if (isOdd) document.getElementById('marker_B_Odd').classList.add('serving');
+            else document.getElementById('marker_B_Even').classList.add('serving');
+        }
+    }
+
+    function updateMarker(id, name) {
+        const el = document.getElementById(id);
+        el.innerHTML = `<div>${name}</div><div class="shuttle-icon">🏸</div>`;
+    }
+</script>
+
+</body>
+</html>
