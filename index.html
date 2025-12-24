@@ -256,6 +256,88 @@
 </head>
 <body>
 
+<datalist id="playersList">
+    <option value="Peter Yen">
+    <option value="Mike Lee">
+    <option value="Danny Chang">
+    <option value="Seadmoon Lai">
+    <option value="Angie Miao">
+    <option value="Kate Lin">
+    <option value="Lily Yang">
+    <option value="Jessica Yen">
+    <option value="Pearl Chang">
+    <option value="Devin Chen">
+    <option value="Mark Lee">
+    <option value="Chih-Yu Lin">
+    <option value="Jo Xu">
+    <option value="Fred Pien">
+    <option value="Ray Tseng">
+    <option value="Lydia Huang">
+    <option value="Emily Chen">
+    <option value="Karen Wang">
+    <option value="ZihZih Chen">
+    <option value="April Chen">
+    <option value="Dickey Hsu">
+    <option value="Shih Chen Hung">
+    <option value="Dixon Chiu">
+    <option value="Jonathan Tu">
+    <option value="Aion Chiu">
+    <option value="Lucy Kuo">
+    <option value="Verna Chen">
+    <option value="Louis Zheng">
+    <option value="Peggy Wu">
+    <option value="Kelly Hou">
+    <option value="Seven Tsai">
+    <option value="Jimmy Yeh">
+    <option value="Pony Chang">
+    <option value="Stephanie Sun">
+    <option value="Sheila Huang">
+    <option value="Ruby Chan">
+    <option value="Lulu Chi">
+    <option value="Grace Chang">
+    <option value="Laura Chang">
+    <option value="Eton Chen">
+    <option value="Joyce Hsieh">
+    <option value="Loran Lin">
+    <option value="Winnie Wang">
+    <option value="Kiki Chuang">
+    <option value="Jack Chen">
+    <option value="Lian Yeh">
+    <option value="Chelsea Hung">
+    <option value="Jay Chen">
+    <option value="Doris Wang">
+    <option value="Gina Hsu">
+    <option value="Paul Chen">
+    <option value="Kai Wu">
+    <option value="Sara Kao">
+    <option value="Patricia Lee">
+    <option value="Rita Ho">
+    <option value="Faunia Liang">
+    <option value="Tavie Kuo">
+    <option value="Charlie Wen">
+    <option value="Cheryl Wu">
+    <option value="Sarah Pan">
+    <option value="Angela Lee">
+    <option value="Esther Wu">
+    <option value="Kerry Chiang">
+    <option value="Sherman Lin">
+    <option value="Renata Kuan">
+    <option value="Yuhui Yang">
+    <option value="Eartha Huang">
+    <option value="Lia Lin">
+    <option value="Wendy Lee">
+    <option value="Cindy Fang">
+    <option value="Alex Lo">
+    <option value="Cari Zhang">
+    <option value="Vivian Chen">
+    <option value="William Yang">
+    <option value="Raven Wang">
+    <option value="Catherine Lin">
+    <option value="Rainie Chen">
+    <option value="Roger Lin">
+    <option value="Jimmy Chang">
+</datalist>
+
 <div class="container">
     <div id="setupScreen">
         <div class="setup-header">
@@ -293,22 +375,22 @@
             <div class="court-half left-court">
                 <div class="service-box">
                     <span class="label-area top-left">左半場 (單數)</span>
-                    <input type="text" class="court-input" id="input_A_Odd" placeholder="球員 A2">
+                    <input type="text" class="court-input" id="input_A_Odd" placeholder="球員 A2" list="playersList" autocomplete="off">
                 </div>
                 <div class="service-box">
                     <span class="label-area bottom-right">右半場 (雙數)</span>
-                    <input type="text" class="court-input" id="input_A_Even" placeholder="球員 A1 (首發)">
+                    <input type="text" class="court-input" id="input_A_Even" placeholder="球員 A1 (首發)" list="playersList" autocomplete="off">
                 </div>
             </div>
 
             <div class="court-half">
                 <div class="service-box">
                     <span class="label-area top-left">右半場 (雙數)</span>
-                    <input type="text" class="court-input" id="input_B_Even" placeholder="球員 B1 (接發)">
+                    <input type="text" class="court-input" id="input_B_Even" placeholder="球員 B1 (接發)" list="playersList" autocomplete="off">
                 </div>
                 <div class="service-box">
                     <span class="label-area bottom-right">左半場 (單數)</span>
-                    <input type="text" class="court-input" id="input_B_Odd" placeholder="球員 B2">
+                    <input type="text" class="court-input" id="input_B_Odd" placeholder="球員 B2" list="playersList" autocomplete="off">
                 </div>
             </div>
         </div>
