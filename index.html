@@ -266,7 +266,7 @@
         <div class="setup-toolbar">
             <div class="input-group">
                 <label>目標分數</label>
-                <input type="number" id="targetScore" value="21">
+                <input type="number" id="targetScore" value="11">
             </div>
             <div class="input-group">
                 <label>誰先發球</label>
@@ -377,7 +377,7 @@
     let gameState = {
         scoreA: 0,
         scoreB: 0,
-        targetScore: 21,
+        targetScore: 11,
         servingTeam: 'A',
         posA_Even: '',
         posA_Odd: '',
@@ -399,7 +399,7 @@
         const handicapB = parseInt(document.getElementById('initScoreB').value) || 0;
         gameState.scoreA = handicapA > 0 ? -handicapA : 0;
         gameState.scoreB = handicapB > 0 ? -handicapB : 0;
-        gameState.targetScore = parseInt(document.getElementById('targetScore').value) || 21;
+        gameState.targetScore = parseInt(document.getElementById('targetScore').value) || 11;
         gameState.servingTeam = document.getElementById('firstServer').value;
 
         // 設定初始位置 (直接對應輸入框位置)
