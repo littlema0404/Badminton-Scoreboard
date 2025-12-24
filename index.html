@@ -722,9 +722,6 @@
                 // 第一次達到時間限制時觸發提醒
                 if (!gameState.timeLimitReached) {
                     gameState.timeLimitReached = true;
-                    // 觸發手機觸覺反饋
-                    // 震動模式：震動 200ms，暫停 100ms，震動 200ms，暫停 100ms，震動 200ms
-                    triggerHapticFeedback([200, 100, 200, 100, 200]);
                     // 顯示 alert
                     setTimeout(() => {
                         alert('⏰ 比賽時間已到！');
