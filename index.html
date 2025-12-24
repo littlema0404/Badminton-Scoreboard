@@ -368,6 +368,15 @@
                 <input type="number" id="initScoreB" value="0" placeholder="0" min="0" inputmode="numeric">
             </div>
         </div>
+        <div class="setup-toolbar">
+            <div class="input-group">
+                <label>比賽時間限制（分鐘）</label>
+                <input type="number" id="timeLimit" value="8" placeholder="不填則無限制" min="1" inputmode="numeric">
+            </div>
+            <div class="input-group" style="display: flex; align-items: flex-end;">
+                <button onclick="clearTimeLimit()" style="width: 100%; padding: 10px; background: #374151; color: #9ca3af; border: 1px solid #4b5563; border-radius: 6px; cursor: pointer; font-size: 14px;">清除時間限制</button>
+            </div>
+        </div>
 
         <div class="court-container">
             <div class="net"></div>
@@ -404,7 +413,10 @@
                 <div class="team-name color-a">Team A (藍)</div>
                 <div class="score-num color-a" id="dispScoreA">0</div>
             </div>
-            <div style="font-size: 1.2rem; color: #4b5563; font-weight:bold;">VS</div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                <div style="font-size: 1.2rem; color: #4b5563; font-weight:bold;">VS</div>
+                <div id="gameTimer" style="font-size: 0.9rem; color: #9ca3af; font-family: monospace;">00:00</div>
+            </div>
             <div class="team-score" id="areaScoreB">
                 <div class="team-name color-b">Team B (紅)</div>
                 <div class="score-num color-b" id="dispScoreB">0</div>
@@ -466,9 +478,15 @@
         posB_Even: '',
         posB_Odd: '',
         hasWinner: false, // 追蹤是否已經有勝利者
+        gameStartTime: null, // 比賽開始時間（Date 對象）
+        pausedTime: 0, // 累計暫停時間（毫秒）
+        lastPauseTime: null, // 最後一次暫停的時間
+        timeLimit: null, // 比賽時間限制（毫秒），null 表示無限制
+        timeLimitReached: false, // 追蹤是否已經顯示時間到提醒
     };
 
     let historyStack = [];
+    let timerInterval = null; // 計時器 interval
 
     function startGame() {
         // 從視覺化輸入框獲取名字
@@ -494,6 +512,17 @@
         gameState.hasWinner = false; // 重置勝利狀態
         historyStack = []; // 清空紀錄
 
+        // 讀取時間限制設定（分鐘轉換為毫秒）
+        const timeLimitInput = document.getElementById('timeLimit').value;
+        gameState.timeLimit = timeLimitInput && timeLimitInput > 0 ? parseInt(timeLimitInput) * 60 * 1000 : null;
+        gameState.timeLimitReached = false;
+
+        // 初始化計時器
+        gameState.gameStartTime = new Date();
+        gameState.pausedTime = 0;
+        gameState.lastPauseTime = null;
+        startTimer();
+
         document.getElementById('setupScreen').style.display = 'none';
         document.getElementById('gameScreen').style.display = 'block';
 
@@ -502,6 +531,7 @@
 
     function resetGame() {
         if(confirm('確定要結束比賽並回到設定頁面嗎？')) {
+            stopTimer();
             document.getElementById('setupScreen').style.display = 'block';
             document.getElementById('gameScreen').style.display = 'none';
         }
@@ -509,7 +539,20 @@
 
     function saveState() {
         // 儲存狀態，移除長度限制，讓你可以無限復原
-        historyStack.push(JSON.parse(JSON.stringify(gameState)));
+        // 排除計時器相關狀態（計時器應該持續運行，不因分數變化而重置）
+        const stateToSave = {
+            scoreA: gameState.scoreA,
+            scoreB: gameState.scoreB,
+            targetScore: gameState.targetScore,
+            servingTeam: gameState.servingTeam,
+            posA_Even: gameState.posA_Even,
+            posA_Odd: gameState.posA_Odd,
+            posB_Even: gameState.posB_Even,
+            posB_Odd: gameState.posB_Odd,
+            hasWinner: gameState.hasWinner,
+            timeLimitReached: gameState.timeLimitReached, // 保存時間限制狀態
+        };
+        historyStack.push(stateToSave);
     }
 
     function undoScore() {
@@ -517,8 +560,28 @@
             alert("已經回到最開始的狀態囉！(若要修改名字請按設定)");
             return;
         }
-        gameState = historyStack.pop();
+        const savedState = historyStack.pop();
+        // 恢復狀態，但保留計時器相關狀態
+        gameState.scoreA = savedState.scoreA;
+        gameState.scoreB = savedState.scoreB;
+        gameState.targetScore = savedState.targetScore;
+        gameState.servingTeam = savedState.servingTeam;
+        gameState.posA_Even = savedState.posA_Even;
+        gameState.posA_Odd = savedState.posA_Odd;
+        gameState.posB_Even = savedState.posB_Even;
+        gameState.posB_Odd = savedState.posB_Odd;
+        gameState.hasWinner = savedState.hasWinner;
+        // 恢復時間限制狀態（如果有的話）
+        if (savedState.timeLimitReached !== undefined) {
+            gameState.timeLimitReached = savedState.timeLimitReached;
+        }
+        // 計時器狀態（gameStartTime, pausedTime, lastPauseTime, timeLimit）保持不變
         render();
+    }
+
+    // 清除時間限制
+    function clearTimeLimit() {
+        document.getElementById('timeLimit').value = '';
     }
 
     function handleScore(winner) {
@@ -605,12 +668,124 @@
             if (isOdd) document.getElementById('marker_B_Odd').classList.add('serving');
             else document.getElementById('marker_B_Even').classList.add('serving');
         }
+
+        // 更新時間顯示
+        updateTimer();
     }
 
     function updateMarker(id, name) {
         const el = document.getElementById(id);
         el.innerHTML = `<div>${name}</div><div class="shuttle-icon">🏸</div>`;
     }
+
+    // 計算經過的時間（考慮暫停時間）
+    function getElapsedTime() {
+        if (!gameState.gameStartTime) return 0;
+        
+        const now = new Date();
+        let elapsed = now - gameState.gameStartTime;
+        
+        // 減去累計的暫停時間
+        elapsed -= gameState.pausedTime;
+        
+        // 如果當前正在暫停，減去當前暫停的時間
+        if (gameState.lastPauseTime) {
+            elapsed -= (now - gameState.lastPauseTime);
+        }
+        
+        return Math.max(0, elapsed);
+    }
+
+    // 格式化時間為 MM:SS
+    function formatTime(milliseconds) {
+        const totalSeconds = Math.floor(milliseconds / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    // 更新時間顯示
+    function updateTimer() {
+        const timerEl = document.getElementById('gameTimer');
+        if (!timerEl || !gameState.gameStartTime) return;
+        
+        const elapsed = getElapsedTime();
+        timerEl.textContent = formatTime(elapsed);
+        
+        // 檢查時間限制並更新樣式
+        if (gameState.timeLimit !== null) {
+            if (elapsed >= gameState.timeLimit) {
+                // 超過時間限制，變紅色提醒
+                timerEl.style.color = '#ef4444';
+                timerEl.style.fontWeight = 'bold';
+                
+                // 第一次達到時間限制時觸發提醒
+                if (!gameState.timeLimitReached) {
+                    gameState.timeLimitReached = true;
+                    // 觸發手機觸覺反饋
+                    // 震動模式：震動 200ms，暫停 100ms，震動 200ms，暫停 100ms，震動 200ms
+                    triggerHapticFeedback([200, 100, 200, 100, 200]);
+                    // 顯示 alert
+                    setTimeout(() => {
+                        alert('⏰ 比賽時間已到！');
+                    }, 100);
+                }
+            } else {
+                // 未超過時間限制，恢復正常顏色
+                timerEl.style.color = '#9ca3af';
+                timerEl.style.fontWeight = 'normal';
+            }
+        } else {
+            // 無時間限制，保持正常顏色
+            timerEl.style.color = '#9ca3af';
+            timerEl.style.fontWeight = 'normal';
+        }
+    }
+
+    // 開始計時器
+    function startTimer() {
+        // 清除現有的計時器
+        if (timerInterval) {
+            clearInterval(timerInterval);
+        }
+        
+        // 如果之前有暫停，恢復暫停時間
+        if (gameState.lastPauseTime) {
+            const pauseDuration = new Date() - gameState.lastPauseTime;
+            gameState.pausedTime += pauseDuration;
+            gameState.lastPauseTime = null;
+        }
+        
+        // 每秒更新一次時間顯示
+        timerInterval = setInterval(() => {
+            updateTimer();
+        }, 100);
+    }
+
+    // 停止計時器
+    function stopTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        // 如果正在暫停，記錄暫停時間
+        if (!gameState.lastPauseTime && gameState.gameStartTime) {
+            gameState.lastPauseTime = new Date();
+        }
+    }
+
+    // Page Visibility API：處理頁面背景/前景切換
+    // 注意：計時器會持續運行，不會因為頁面進入背景而暫停
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            // 頁面回到前景時，立即更新時間顯示
+            // 由於計時器基於時間戳計算，即使 setInterval 在背景時被節流，
+            // 重新可見時也能顯示正確的時間
+            if (gameState.gameStartTime) {
+                updateTimer();
+            }
+        }
+    });
 </script>
 
 </body>
