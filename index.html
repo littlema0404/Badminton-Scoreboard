@@ -622,10 +622,28 @@
         // 獲勝特效
         areaA.classList.remove('winner');
         areaB.classList.remove('winner');
-        const isAWinner = gameState.scoreA >= gameState.targetScore;
-        const isBWinner = gameState.scoreB >= gameState.targetScore;
         
-        // 如果分數低於目標分數，重置勝利狀態（用於復原功能）
+        // Deuce 規則：當雙方都達到目標分數-1時，需要領先2分才能獲勝
+        const deuceThreshold = gameState.targetScore - 1;
+        const isDeuce = gameState.scoreA >= deuceThreshold && gameState.scoreB >= deuceThreshold;
+        
+        let isAWinner = false;
+        let isBWinner = false;
+        
+        if (isDeuce) {
+            // Deuce 狀態：需要領先2分才能獲勝
+            if (gameState.scoreA >= gameState.scoreB + 2) {
+                isAWinner = true;
+            } else if (gameState.scoreB >= gameState.scoreA + 2) {
+                isBWinner = true;
+            }
+        } else {
+            // 一般狀態：達到目標分數即可獲勝
+            isAWinner = gameState.scoreA >= gameState.targetScore;
+            isBWinner = gameState.scoreB >= gameState.targetScore;
+        }
+        
+        // 如果分數低於獲勝條件，重置勝利狀態（用於復原功能）
         if (!isAWinner && !isBWinner) {
             gameState.hasWinner = false;
         }
