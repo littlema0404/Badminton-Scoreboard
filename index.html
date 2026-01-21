@@ -378,6 +378,53 @@
             </div>
         </div>
 
+        <div class="setup-toolbar">
+            <div class="input-group">
+                <label style="color: var(--team-a-color);">🔵 快速選擇藍隊</label>
+                <select id="selectTeamA" onchange="fillTeamA()" style="background: rgba(59, 130, 246, 0.15); border: 2px solid var(--team-a-color);">
+                    <option value="">-- 選擇藍隊 --</option>
+                    <option value="Loran Lin|Lydia Huang">三重美食之旅籌備隊</option>
+                    <option value="Paul Chen|Kai Wu">哇搭西哇羽球天才</option>
+                    <option value="Lian Yeh|Roger Lin">馬吉馬</option>
+                    <option value="Wendy Lee|Cindy Fang">溫馨隊</option>
+                    <option value="Stephanie Sun|Pony Chang">史馬特</option>
+                    <option value="Gina Hsu|Dickey Hsu">我們是最棒的！</option>
+                    <option value="Lily Yang|Danny Chang">二輪傳奇</option>
+                    <option value="Jessica Yen|Jimmy Chang">J麼厲害隊</option>
+                    <option value="Peggy Wu|Seven Tsai">汪喵星球</option>
+                    <option value="Kiki Chuang|Sheila Huang">輪到我們是冠軍了吧</option>
+                    <option value="Joyce Hsieh|Angela Lee">你們會讓我們對不隊</option>
+                    <option value="Eton Chen|Fred Pien">麻將雙俠</option>
+                    <option value="Louis Zheng|April Chen">你們會放水對不隊</option>
+                    <option value="Peter Yen|Mike Lee">Founder 隊</option>
+                    <option value="Kate Lin|Jack Chen">馬上晉級</option>
+                    <option value="Devin Chen|Yiting Huang">羽林高手</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label style="color: var(--team-b-color);">🔴 快速選擇紅隊</label>
+                <select id="selectTeamB" onchange="fillTeamB()" style="background: rgba(239, 68, 68, 0.15); border: 2px solid var(--team-b-color);">
+                    <option value="">-- 選擇紅隊 --</option>
+                    <option value="Loran Lin|Lydia Huang">三重美食之旅籌備隊</option>
+                    <option value="Paul Chen|Kai Wu">哇搭西哇羽球天才</option>
+                    <option value="Lian Yeh|Roger Lin">馬吉馬</option>
+                    <option value="Wendy Lee|Cindy Fang">溫馨隊</option>
+                    <option value="Stephanie Sun|Pony Chang">史馬特</option>
+                    <option value="Gina Hsu|Dickey Hsu">我們是最棒的！</option>
+                    <option value="Lily Yang|Danny Chang">二輪傳奇</option>
+                    <option value="Jessica Yen|Jimmy Chang">J麼厲害隊</option>
+                    <option value="Peggy Wu|Seven Tsai">汪喵星球</option>
+                    <option value="Kiki Chuang|Sheila Huang">輪到我們是冠軍了吧</option>
+                    <option value="Joyce Hsieh|Angela Lee">你們會讓我們對不隊</option>
+                    <option value="Eton Chen|Fred Pien">麻將雙俠</option>
+                    <option value="Louis Zheng|April Chen">你們會放水對不隊</option>
+                    <option value="Peter Yen|Mike Lee">Founder 隊</option>
+                    <option value="Kate Lin|Jack Chen">馬上晉級</option>
+                    <option value="Devin Chen|Yiting Huang">羽林高手</option>
+                </select>
+            </div>
+        </div>
+
         <div class="court-container">
             <div class="net"></div>
 
@@ -582,6 +629,34 @@
     // 清除時間限制
     function clearTimeLimit() {
         document.getElementById('timeLimit').value = '';
+    }
+
+    // 填入藍隊名字
+    function fillTeamA() {
+        const select = document.getElementById('selectTeamA');
+        const value = select.value;
+        if (value) {
+            const [player1, player2] = value.split('|');
+            // 藍隊：左半場
+            // 右半場（雙數）= player1（首發）
+            // 左半場（單數）= player2
+            document.getElementById('input_A_Even').value = player1;
+            document.getElementById('input_A_Odd').value = player2;
+        }
+    }
+
+    // 填入紅隊名字
+    function fillTeamB() {
+        const select = document.getElementById('selectTeamB');
+        const value = select.value;
+        if (value) {
+            const [player1, player2] = value.split('|');
+            // 紅隊：右半場
+            // 右半場（雙數）= player1（接發）
+            // 左半場（單數）= player2
+            document.getElementById('input_B_Even').value = player1;
+            document.getElementById('input_B_Odd').value = player2;
+        }
     }
 
     function handleScore(winner) {
