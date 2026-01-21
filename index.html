@@ -431,22 +431,22 @@
 
             <div class="court-half left-court">
                 <div class="service-box">
-                    <span class="label-area top-left">左半場 (單數)</span>
+                    <span class="label-area top-left">藍隊 左半場 (單數)</span>
                     <input type="text" class="court-input" id="input_A_Odd" placeholder="球員 A2" list="playersList" autocomplete="off">
                 </div>
                 <div class="service-box">
-                    <span class="label-area bottom-right">右半場 (雙數)</span>
-                    <input type="text" class="court-input" id="input_A_Even" placeholder="球員 A1 (首發)" list="playersList" autocomplete="off">
+                    <span class="label-area bottom-right">藍隊 右半場 (雙數)</span>
+                    <input type="text" class="court-input" id="input_A_Even" placeholder="球員 A1" list="playersList" autocomplete="off">
                 </div>
             </div>
 
             <div class="court-half">
                 <div class="service-box">
-                    <span class="label-area top-left">右半場 (雙數)</span>
-                    <input type="text" class="court-input" id="input_B_Even" placeholder="球員 B1 (接發)" list="playersList" autocomplete="off">
+                    <span class="label-area top-left">紅隊 右半場 (雙數)</span>
+                    <input type="text" class="court-input" id="input_B_Even" placeholder="球員 B1" list="playersList" autocomplete="off">
                 </div>
                 <div class="service-box">
-                    <span class="label-area bottom-right">左半場 (單數)</span>
+                    <span class="label-area bottom-right">紅隊 左半場 (單數)</span>
                     <input type="text" class="court-input" id="input_B_Odd" placeholder="球員 B2" list="playersList" autocomplete="off">
                 </div>
             </div>
@@ -476,22 +476,22 @@
 
             <div class="court-half left-court">
                 <div class="service-box">
-                    <span class="label-area top-left">左 (單)</span>
+                    <span class="label-area top-left">藍隊 左 (單)</span>
                     <div class="player-marker" id="marker_A_Odd"></div>
                 </div>
                 <div class="service-box">
-                    <span class="label-area bottom-right">右 (雙)</span>
+                    <span class="label-area bottom-right">藍隊 右 (雙)</span>
                     <div class="player-marker" id="marker_A_Even"></div>
                 </div>
             </div>
 
             <div class="court-half">
                 <div class="service-box">
-                    <span class="label-area top-left">右 (雙)</span>
+                    <span class="label-area top-left">紅隊 右 (雙)</span>
                     <div class="player-marker" id="marker_B_Even"></div>
                 </div>
                 <div class="service-box">
-                    <span class="label-area bottom-right">左 (單)</span>
+                    <span class="label-area bottom-right">紅隊 左 (單)</span>
                     <div class="player-marker" id="marker_B_Odd"></div>
                 </div>
             </div>
@@ -657,7 +657,7 @@
         if (value) {
             const [player1, player2] = value.split('|');
             // 藍隊：左半場
-            // 右半場（雙數）= player1（首發）
+            // 右半場（雙數）= player1
             // 左半場（單數）= player2
             document.getElementById('input_A_Even').value = player1;
             document.getElementById('input_A_Odd').value = player2;
@@ -671,7 +671,7 @@
         if (value) {
             const [player1, player2] = value.split('|');
             // 紅隊：右半場
-            // 右半場（雙數）= player1（接發）
+            // 右半場（雙數）= player1
             // 左半場（單數）= player2
             document.getElementById('input_B_Even').value = player1;
             document.getElementById('input_B_Odd').value = player2;
