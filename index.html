@@ -140,12 +140,12 @@
         .court-input::placeholder { color: rgba(255,255,255,0.5); font-weight: normal; font-size: 12px;}
 
         button.start-btn {
-            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            background: #fbbf24;
             width: 100%;
             padding: 16px;
             font-size: 18px;
             font-weight: bold;
-            color: white;
+            color: #000;
             border: none;
             border-radius: 12px;
             cursor: pointer;
@@ -369,7 +369,6 @@
     <div id="setupScreen">
         <div class="setup-header">
             <h1>🏸 比賽設定</h1>
-            <p style="font-size:12px; color:#9ca3af;">直接在球場位置輸入名字，所見即所得</p>
         </div>
 
         <div class="setup-toolbar">
@@ -391,7 +390,7 @@
 
         <div class="setup-toolbar">
             <div class="input-group">
-                <label>比賽時間限制（分鐘，不填則無限制）</label>
+                <label>時間限制（分鐘）</label>
                 <input type="number" id="timeLimit" value="8" placeholder="不填則無限制" min="1" inputmode="numeric">
             </div>
             <div class="input-group">
@@ -459,11 +458,11 @@
             <div class="court-half left-court">
                 <button class="swap-emoji-btn swap-btn-a" onclick="swapTeamA()" title="藍隊交換位置">🔄</button>
                 <div class="service-box">
-                    <span class="label-area top-left">藍隊 左半場 (單數)</span>
+                    <span class="label-area top-left">藍隊 左半場</span>
                     <input type="text" class="court-input" id="input_A_Odd" placeholder="球員 A2" list="playersList" autocomplete="off">
                 </div>
                 <div class="service-box">
-                    <span class="label-area bottom-right">藍隊 右半場 (雙數)</span>
+                    <span class="label-area bottom-right">藍隊 右半場 (接 / 發球位)</span>
                     <input type="text" class="court-input" id="input_A_Even" placeholder="球員 A1" list="playersList" autocomplete="off">
                 </div>
             </div>
@@ -471,11 +470,11 @@
             <div class="court-half">
                 <button class="swap-emoji-btn swap-btn-b" onclick="swapTeamB()" title="紅隊交換位置">🔄</button>
                 <div class="service-box">
-                    <span class="label-area top-left">紅隊 右半場 (雙數)</span>
+                    <span class="label-area top-left">紅隊 右半場 (接 / 發球位)</span>
                     <input type="text" class="court-input" id="input_B_Even" placeholder="球員 B1" list="playersList" autocomplete="off">
                 </div>
                 <div class="service-box">
-                    <span class="label-area bottom-right">紅隊 左半場 (單數)</span>
+                    <span class="label-area bottom-right">紅隊 左半場</span>
                     <input type="text" class="court-input" id="input_B_Odd" placeholder="球員 B2" list="playersList" autocomplete="off">
                 </div>
             </div>
@@ -492,7 +491,7 @@
             </div>
             <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
                 <div style="font-size: 1.2rem; color: #4b5563; font-weight:bold;">VS</div>
-                <div id="gameTimer" style="font-size: 0.9rem; color: #9ca3af; font-family: monospace;">00:00</div>
+                <div id="gameTimer" style="font-size: 1.5rem; color: #9ca3af; font-family: monospace; font-weight: bold;">00:00</div>
             </div>
             <div class="team-score" id="areaScoreB">
                 <div class="team-name color-b">Team B (紅)</div>
