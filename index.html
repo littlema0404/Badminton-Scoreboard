@@ -153,6 +153,33 @@
             margin-top: 10px;
         }
 
+        /* 球場上的交換按鈕 */
+        .swap-emoji-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 36px;
+            height: 36px;
+            font-size: 24px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.4);
+        }
+        .swap-emoji-btn:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        .swap-emoji-btn:active {
+            transform: translate(-50%, -50%) scale(0.95);
+        }
+
         /* --- 比賽頁面 --- */
         #gameScreen { display: none; width: 100%; }
 
@@ -430,6 +457,7 @@
             <div class="net"></div>
 
             <div class="court-half left-court">
+                <button class="swap-emoji-btn swap-btn-a" onclick="swapTeamA()" title="藍隊交換位置">🔄</button>
                 <div class="service-box">
                     <span class="label-area top-left">藍隊 左半場 (單數)</span>
                     <input type="text" class="court-input" id="input_A_Odd" placeholder="球員 A2" list="playersList" autocomplete="off">
@@ -441,6 +469,7 @@
             </div>
 
             <div class="court-half">
+                <button class="swap-emoji-btn swap-btn-b" onclick="swapTeamB()" title="紅隊交換位置">🔄</button>
                 <div class="service-box">
                     <span class="label-area top-left">紅隊 右半場 (雙數)</span>
                     <input type="text" class="court-input" id="input_B_Even" placeholder="球員 B1" list="playersList" autocomplete="off">
@@ -676,6 +705,28 @@
             document.getElementById('input_B_Even').value = player1;
             document.getElementById('input_B_Odd').value = player2;
         }
+    }
+
+    // 交換藍隊球員位置
+    function swapTeamA() {
+        const inputOdd = document.getElementById('input_A_Odd');
+        const inputEven = document.getElementById('input_A_Even');
+        
+        // 交換兩個輸入框的值
+        const temp = inputOdd.value;
+        inputOdd.value = inputEven.value;
+        inputEven.value = temp;
+    }
+
+    // 交換紅隊球員位置
+    function swapTeamB() {
+        const inputOdd = document.getElementById('input_B_Odd');
+        const inputEven = document.getElementById('input_B_Even');
+        
+        // 交換兩個輸入框的值
+        const temp = inputOdd.value;
+        inputOdd.value = inputEven.value;
+        inputEven.value = temp;
     }
 
     function handleScore(winner) {
