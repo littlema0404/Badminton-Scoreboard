@@ -358,23 +358,24 @@
                 </select>
             </div>
         </div>
+        <!-- 隱藏的讓分欄位，由下拉選單控制 -->
+        <input type="hidden" id="initScoreA" value="">
+        <input type="hidden" id="initScoreB" value="">
+
         <div class="setup-toolbar">
             <div class="input-group">
-                <label>藍隊讓分</label>
-                <input type="number" id="initScoreA" value="" placeholder="0" min="0" inputmode="numeric">
-            </div>
-            <div class="input-group">
-                <label>紅隊讓分</label>
-                <input type="number" id="initScoreB" value="" placeholder="0" min="0" inputmode="numeric">
-            </div>
-        </div>
-        <div class="setup-toolbar">
-            <div class="input-group">
-                <label>比賽時間限制（分鐘）</label>
+                <label>比賽時間限制（分鐘，不填則無限制）</label>
                 <input type="number" id="timeLimit" value="8" placeholder="不填則無限制" min="1" inputmode="numeric">
             </div>
-            <div class="input-group" style="display: flex; align-items: flex-end;">
-                <button onclick="clearTimeLimit()" style="width: 100%; padding: 10px; background: #374151; color: #9ca3af; border: 1px solid #4b5563; border-radius: 6px; cursor: pointer; font-size: 14px;">清除時間限制</button>
+            <div class="input-group">
+                <label>讓分設定</label>
+                <select id="handicapSelect" onchange="applyHandicap()">
+                    <option value="none">無</option>
+                    <option value="a2">藍隊讓 2 分</option>
+                    <option value="a3">藍隊讓 3 分</option>
+                    <option value="b2">紅隊讓 2 分</option>
+                    <option value="b3">紅隊讓 3 分</option>
+                </select>
             </div>
         </div>
 
@@ -626,9 +627,27 @@
         render();
     }
 
-    // 清除時間限制
-    function clearTimeLimit() {
-        document.getElementById('timeLimit').value = '';
+    // 快速設定讓分
+    function applyHandicap() {
+        const select = document.getElementById('handicapSelect');
+        const value = select.value;
+        const initScoreA = document.getElementById('initScoreA');
+        const initScoreB = document.getElementById('initScoreB');
+        
+        // 清空讓分
+        initScoreA.value = '';
+        initScoreB.value = '';
+        
+        // 根據選擇設定讓分
+        if (value === 'a2') {
+            initScoreA.value = '2';
+        } else if (value === 'a3') {
+            initScoreA.value = '3';
+        } else if (value === 'b2') {
+            initScoreB.value = '2';
+        } else if (value === 'b3') {
+            initScoreB.value = '3';
+        }
     }
 
     // 填入藍隊名字
